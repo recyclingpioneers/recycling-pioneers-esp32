@@ -55,11 +55,11 @@ FirebaseData firebaseData;
 FirebaseJson json;
 
 //Fields required for weight
-int calibrationValue = 4615.0; //Custom calibration value for our sensor
-int weightData = 0.0000;
-int last_stable_weight = -100.0000; //Set the inital stable to unattainable value
-int ave;
-int weight_history[4];
+double calibrationValue = 20764.00; //Custom calibration value for our sensor
+double weightData = 0.00;
+double last_stable_weight = -100.00; //Set the inital stable to unattainable value
+double ave;
+double weight_history[4];
 
 //Fields required for distance
 int distanceData = 0;
@@ -73,7 +73,7 @@ unsigned long previousMillis = 0; //Last time updated
 NewPing sonar1(TRIGGER_PIN_1, ECHO_PIN_1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 NewPing sonar2(TRIGGER_PIN_2, ECHO_PIN_2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 NewPing sonar3(TRIGGER_PIN_3, ECHO_PIN_3, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-HX711_ADC LoadCell(5,4);   //HX711 constructor (dout pin, sck pin)
+HX711_ADC LoadCell(DOUT,CLK);   //HX711 constructor (dout pin, sck pin)
 
 void connectToFirebaseDatabase(){
   //Connect to firebase database
@@ -120,7 +120,7 @@ boolean weightISR() {
     weight_history[0] = weightData;
     ave = (weight_history[0] + weight_history[1] + weight_history[2] + weight_history[3])/4;
 
-    if ((abs(ave - weightData) < 1) && weightData >= 0) {
+    if ((abs(ave - weightData) < 0.1) && weightData >= 0.00) {
         return true;
     }
     else {
@@ -167,7 +167,7 @@ void sendToFirebase(String t){
     Serial.println(firebaseData.errorReason());
   }
   
-  if(Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestWeight", weightData))
+  if(Firebase.setDouble(firebaseData, "Sensors/Sensor1/LatestWeight", weightData))
   {
     //SuccesS
   }else{
@@ -201,7 +201,6 @@ void setup() {
 
   //Configure the weight sensor
   initWeightSensor();
-  //attachInterrupt(digitalPinToInterrupt(DOUT), updateWeight ,FALLING); //Set an interrupt for load sensors
 }
 
 void loop() {
