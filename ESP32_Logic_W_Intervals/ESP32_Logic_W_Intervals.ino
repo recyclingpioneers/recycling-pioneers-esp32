@@ -21,6 +21,7 @@
 #include "time.h"
 #include "arduino_secrets.h"
 
+//Pins required for Distance Sensors 
 #define TRIGGER_PIN_1  16  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_PIN_1     17  // Arduino pin tied to echo pin on the ultrasonic sensor.
 
@@ -28,11 +29,14 @@
 #define ECHO_PIN_2     19  // Arduino pin tied to echo pin on the ultrasonic sensor.
 
 #define TRIGGER_PIN_3  22  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_3    23  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define ECHO_PIN_3    23  // Arduino pin tied to echo pin on the ultrasonic sensor. 
 
-HX711_ADC LoadCell(5,4);   //HX711 constructor (dout pin, sck pin)
+//Pins for Load Sensors
+#define DOUT 5
+#define CLK 4
 
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define UPDATE_INTERVAL 60000 //Time in milliseconds between updating firebase database (1 min)
 
 
 const char *FIREBASE_HOST = SECRET_FIREBASE_HOST;
@@ -46,10 +50,6 @@ const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -18000; //Offset of 18000s (5 hours) for our timezone
 const int   daylightOffset_sec = 3600; //Daylight saving offset one hour
 
-NewPing sonar1(TRIGGER_PIN_1, ECHO_PIN_1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-NewPing sonar2(TRIGGER_PIN_2, ECHO_PIN_2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-NewPing sonar3(TRIGGER_PIN_3, ECHO_PIN_3, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-
 //Fields required for Firebase
 FirebaseData firebaseData;
 FirebaseJson json;
@@ -58,10 +58,8 @@ FirebaseJson json;
 int calibrationValue = 4615.0; //Custom calibration value for our sensor
 int weightData = 0.0000;
 int last_stable_weight = -100.0000; //Set the inital stable to unattainable value
-bool stable_weight_flag = false; //Set the weight to not stable yet
 int ave;
 int weight_history[4];
-bool newDataReady = false;
 
 //Fields required for distance
 int distanceData = 0;
@@ -69,64 +67,13 @@ int last_stable_distance = -5; //Set the inital stable to unattainable value
 
 //Field required for Time
 char createdAt[30]; //Char array for time field
+unsigned long previousMillis = 0; //Last time updated
 
-void setup() {
-  Serial.begin(115200); // start serial port output, check for same speed at Serial Monitor
-  
-  connectToWifi(); 
-  // Init and get the time
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  getLocalTime();
-  connectToFirebaseDatabase(); //Once online, connect to the database
 
-  //Configure the weight sensor
-  initWeightSensor();
-
-  //Get the absolute value as a decimal
-  LoadCell.update();
-  weightData = LoadCell.getData(); 
-  
-  //Get the distance data from the sensors
-  distanceData = getDistanceData();
-
-  Serial.print("Weight: ");
-  Serial.println(weightData);;
-
-  Serial.println(distanceData);
-  Serial.println("");
-
-  if (distanceChanged() == true || weightChanged() == true){
-    String createdAt = getLocalTime();
-    sendToFirebase(createdAt);
-    last_stable_weight = weightData;
-    stable_weight_flag = false;
-    last_stable_distance = distanceData;
-  }
-
-  //Sleep every 60seconds
-  esp_sleep_enable_timer_wakeup(60 * 1000000); 
-  //Put esp32 into a deep sleep
-  esp_deep_sleep_start();
-}
-
-void loop() {
-}
-
-void connectToWifi(){
-   //Connect to wifi
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.println("Connecting to Wi-Fi...");
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.print(".");
-    delay(300);
-  }
-  Serial.println();
-  Serial.println("Succesfully Connected to the Internet.");
-  Serial.print("Connected with IP: ");
-  Serial.println(WiFi.localIP());
-  Serial.println();
-}
+NewPing sonar1(TRIGGER_PIN_1, ECHO_PIN_1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+NewPing sonar2(TRIGGER_PIN_2, ECHO_PIN_2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+NewPing sonar3(TRIGGER_PIN_3, ECHO_PIN_3, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+HX711_ADC LoadCell(5,4);   //HX711 constructor (dout pin, sck pin)
 
 void connectToFirebaseDatabase(){
   //Connect to firebase database
@@ -162,31 +109,24 @@ int getDistanceData(){
   return finalDistance; 
 }
 
-bool distanceChanged(){
-  if ((distanceData != last_stable_distance) && (distanceData != (last_stable_distance+1)) && (distanceData != (last_stable_distance-1))) {
-    return true;  
+boolean weightISR() {
+  if (LoadCell.update()) {
+    weightData = LoadCell.getData();
+    
+    //Get the last 4 weight measurements and compare them 
+    weight_history[3] = weight_history[2];
+    weight_history[2] = weight_history[1];
+    weight_history[1] = weight_history[0];
+    weight_history[0] = weightData;
+    ave = (weight_history[0] + weight_history[1] + weight_history[2] + weight_history[3])/4;
+
+    if ((abs(ave - weightData) < 1) && weightData >= 0) {
+        return true;
+    }
+    else {
+      return false;
+    }
   }
-  else return false;
-}
-
-bool weightChanged(){
-
-  //Get the last 4 weight measurements and compare them 
-   weight_history[3] = weight_history[2];
-   weight_history[2] = weight_history[1];
-   weight_history[1] = weight_history[0];
-   weight_history[0] = weightData;
-   ave = (weight_history[0] + weight_history[1] + weight_history[2] + weight_history[3])/4;
-
-   //Check that it is stable and not still changing
-   if ((abs(ave - weightData) < 0.5) && weightData >= 0){
-     stable_weight_flag = true;
-   }
-
-   if (last_stable_weight != weightData && stable_weight_flag) {
-    return true;
-   }
-   return false;
 }
 
 String getLocalTime(){
@@ -208,19 +148,18 @@ void sendToFirebase(String t){
   json.set("Weight", weightData);
   json.set("Time", t);
 
-  if (Firebase.pushJSON(firebaseData, "/Sensor1/Data", json)) {
-    Serial.println("Sent data to Firebase succesfully");
+  if (Firebase.pushJSON(firebaseData, "Sensors/Sensor1/Data", json)) {
+    //SUCCESS
   } else {
+    Serial.print("Error in sending JSON data to firebase, ");
     Serial.println(firebaseData.errorReason());
   }
  
   //*********************
   //Update Latest Data
-   if(Firebase.setInt(firebaseData, "/Sensor1/LatestDistance", distanceData))
+   if(Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestDistance", distanceData))
   {
-    //Success
-     Serial.println("Sent latest distance data to Firebase");
-
+    //SUCCESS
   }else{
     //Failed?, get the error reason from firebaseData
 
@@ -228,15 +167,61 @@ void sendToFirebase(String t){
     Serial.println(firebaseData.errorReason());
   }
   
-  if(Firebase.setInt(firebaseData, "/Sensor1/LatestWeight", weightData))
+  if(Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestWeight", weightData))
   {
-    //Success
-     Serial.println("Sent latest weight data to Firebase");
-
+    //SuccesS
   }else{
     //Failed?, get the error reason from firebaseData
-
     Serial.print("Error in sending latest weight data, ");
     Serial.println(firebaseData.errorReason());
   } 
+}
+
+void setup() {
+  Serial.begin(115200); // start serial port output, check for same speed at Serial Monitor
+  
+   //Connect to wifi
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.println("Connecting to Wi-Fi...");
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(300);
+  }
+  Serial.println();
+  Serial.println("Succesfully Connected to the Internet.");
+  Serial.print("Connected with IP: ");
+  Serial.println(WiFi.localIP());
+  Serial.println();
+  
+  // Init and get the time
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  getLocalTime();
+  connectToFirebaseDatabase(); //Once online, connect to the database
+
+  //Configure the weight sensor
+  initWeightSensor();
+  //attachInterrupt(digitalPinToInterrupt(DOUT), updateWeight ,FALLING); //Set an interrupt for load sensors
+}
+
+void loop() {
+  unsigned long currentMillis = millis();
+  LoadCell.update();
+  //Only run every minute
+  if (currentMillis - previousMillis >= UPDATE_INTERVAL) { 
+    
+       previousMillis = currentMillis; //Update the time field
+       
+       distanceData = getDistanceData();
+
+       while (weightISR() == false){
+          weightISR();
+       }
+      
+       String createdAt = getLocalTime();
+       sendToFirebase(createdAt); //Send data to firebase with the created time
+       last_stable_weight = weightData; 
+       last_stable_distance = distanceData;
+       
+  }
 }
