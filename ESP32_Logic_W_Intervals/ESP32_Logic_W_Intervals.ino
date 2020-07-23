@@ -36,7 +36,7 @@
 #define CLK 4
 
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-#define UPDATE_INTERVAL 60000 //Time in milliseconds between updating firebase database (1 min)
+#define UPDATE_INTERVAL 600000 //Time in milliseconds between updating firebase database (10 min)
 
 
 const char *FIREBASE_HOST = SECRET_FIREBASE_HOST;
