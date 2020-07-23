@@ -55,15 +55,13 @@ FirebaseData firebaseData;
 FirebaseJson json;
 
 //Fields required for weight
-double calibrationValue = 20764.00; //Custom calibration value for our sensor
-double weightData = 0.00;
-double last_stable_weight = -100.00; //Set the inital stable to unattainable value
-double ave;
-double weight_history[4];
+float calibrationValue = 20764.00; //Custom calibration value for our sensor
+float weightData = 0.00;
+float ave;
+float weight_history[4];
 
 //Fields required for distance
 int distanceData = 0;
-int last_stable_distance = -5; //Set the inital stable to unattainable value
 
 //Field required for Time
 char createdAt[30]; //Char array for time field
@@ -120,7 +118,7 @@ boolean weightISR() {
     weight_history[0] = weightData;
     ave = (weight_history[0] + weight_history[1] + weight_history[2] + weight_history[3])/4;
 
-    if ((abs(ave - weightData) < 0.1) && weightData >= 0.00) {
+    if ((abs(ave - weightData) < 0.10) && weightData >= 0.00) {
         return true;
     }
     else {
@@ -157,20 +155,17 @@ void sendToFirebase(String t){
  
   //*********************
   //Update Latest Data
-   if(Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestDistance", distanceData))
-  {
+   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestDistance", distanceData)) {
     //SUCCESS
-  }else{
+   } else {
     //Failed?, get the error reason from firebaseData
-
     Serial.print("Error in sending latest distance data, ");
     Serial.println(firebaseData.errorReason());
   }
   
-  if(Firebase.setDouble(firebaseData, "Sensors/Sensor1/LatestWeight", weightData))
-  {
-    //SuccesS
-  }else{
+  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestWeight", weightData)) {
+    //Success
+  } else {
     //Failed?, get the error reason from firebaseData
     Serial.print("Error in sending latest weight data, ");
     Serial.println(firebaseData.errorReason());
@@ -208,7 +203,6 @@ void loop() {
   LoadCell.update();
   //Only run every minute
   if (currentMillis - previousMillis >= UPDATE_INTERVAL) { 
-    
        previousMillis = currentMillis; //Update the time field
        
        distanceData = getDistanceData();
@@ -218,9 +212,6 @@ void loop() {
        }
       
        String createdAt = getLocalTime();
-       sendToFirebase(createdAt); //Send data to firebase with the created time
-       last_stable_weight = weightData; 
-       last_stable_distance = distanceData;
-       
+       sendToFirebase(createdAt); //Send data to firebase with the created timee
   }
 }
