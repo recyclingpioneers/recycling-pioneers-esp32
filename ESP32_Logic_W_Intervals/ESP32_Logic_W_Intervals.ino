@@ -21,6 +21,14 @@
 #include "time.h"
 #include "arduino_secrets.h"
 
+/*
+ * The following code has been placed in a secret file for security reasons. The template follows as below:
+#define SECRET_FIREBASE_HOST "firebase host here"
+#define SECRET_FIREBASE_AUTH "firebase authentication here"
+#define SECRET_WIFI_SSID "wifi name here"
+#define SECRET_WIFI_PASSWORD "wifi password here"
+*/
+
 //Pins required for Distance Sensors 
 #define TRIGGER_PIN_WASTE_1  16  // Arduino pin tied to trigger pin on the ultrasonic sensor
 #define ECHO_PIN_WASTE_1     17  // Arduino pin tied to echo pin on the ultrasonic sensor.
