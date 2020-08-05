@@ -320,14 +320,14 @@ String getLocalTime(){
 
 void sendToFirebase(String t){
 
-  json.set("Waste Distance",distanceData_WASTE);
-  json.set("Waste Weight", weightData_WASTE);
-  json.set("Plastic Distance",distanceData_PLASTIC);
-  json.set("Plastic Weight", weightData_PLASTIC);
-  json.set("Compost Distance",distanceData_COMPOST);
-  json.set("Compost Weight", weightData_COMPOST);
-  json.set("Recycle Distance",distanceData_RECYCLE);
-  json.set("Recycle Weight", weightData_RECYCLE);
+  json.set("WD",distanceData_WASTE);
+  json.set("WW", weightData_WASTE);
+  json.set("PD",distanceData_PLASTIC);
+  json.set("PW", weightData_PLASTIC);
+  json.set("CD",distanceData_COMPOST);
+  json.set("CW", weightData_COMPOST);
+  json.set("RD",distanceData_RECYCLE);
+  json.set("RW", weightData_RECYCLE);
   json.set("Time", t);
 
   if (Firebase.pushJSON(firebaseData, "Sensors/Sensor1/Data", json)) {
@@ -339,7 +339,7 @@ void sendToFirebase(String t){
  
   //*********************
   //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestWasteDistance", distanceData_WASTE)) {
+   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestWD", distanceData_WASTE)) {
     //SUCCESS
    } else {
     //Failed?, get the error reason from firebaseData
@@ -347,7 +347,7 @@ void sendToFirebase(String t){
     Serial.println(firebaseData.errorReason());
   }
   
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestWasteWeight", weightData_WASTE)) {
+  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestWW", weightData_WASTE)) {
     //Success
   } else {
     //Failed?, get the error reason from firebaseData
@@ -356,7 +356,7 @@ void sendToFirebase(String t){
   } 
 
   //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestPlasticDistance", distanceData_PLASTIC)) {
+   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestPD", distanceData_PLASTIC)) {
     //SUCCESS
    } else {
     //Failed?, get the error reason from firebaseData
@@ -364,7 +364,7 @@ void sendToFirebase(String t){
     Serial.println(firebaseData.errorReason());
   }
   
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestPlasticWeight", weightData_PLASTIC)) {
+  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestPW", weightData_PLASTIC)) {
     //Success
   } else {
     //Failed?, get the error reason from firebaseData
@@ -373,7 +373,7 @@ void sendToFirebase(String t){
   }
 
   //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestCompostDistance", distanceData_COMPOST)) {
+   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestCD", distanceData_COMPOST)) {
     //SUCCESS
    } else {
     //Failed?, get the error reason from firebaseData
@@ -381,7 +381,7 @@ void sendToFirebase(String t){
     Serial.println(firebaseData.errorReason());
   }
   
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestCompostWeight", weightData_COMPOST)) {
+  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestCW", weightData_COMPOST)) {
     //Success
   } else {
     //Failed?, get the error reason from firebaseData
@@ -390,7 +390,7 @@ void sendToFirebase(String t){
   } 
 
   //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestRecycleDistance", distanceData_RECYCLE)) {
+   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestRD", distanceData_RECYCLE)) {
     //SUCCESS
    } else {
     //Failed?, get the error reason from firebaseData
@@ -398,7 +398,7 @@ void sendToFirebase(String t){
     Serial.println(firebaseData.errorReason());
   }
   
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestRecycleWeight", weightData_RECYCLE)) {
+  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestRW", weightData_RECYCLE)) {
     //Success
   } else {
     //Failed?, get the error reason from firebaseData
