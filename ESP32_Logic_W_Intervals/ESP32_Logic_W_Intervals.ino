@@ -75,6 +75,8 @@
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 #define UPDATE_INTERVAL 600000 //Time in milliseconds between updating firebase database (10 min)
 
+//Name of node in firebase data 
+const String SENSOR_NAME = "sensor1";
 
 const char *FIREBASE_HOST = SECRET_FIREBASE_HOST;
 const char *FIREBASE_AUTH = SECRET_FIREBASE_AUTH;
@@ -89,7 +91,7 @@ const int   daylightOffset_sec = 3600; //Daylight saving offset one hour
 
 //Fields required for Firebase
 FirebaseData firebaseData;
-FirebaseJson json;
+FirebaseJson jsonAllData;
 
 //Fields required for weight
 float calibrationValue_WASTE = 20764.00; //Custom calibration value for our sensor
@@ -328,17 +330,17 @@ String getLocalTime(){
 
 void sendToFirebase(String t){
 
-  json.set("WD",distanceData_WASTE);
-  json.set("WW", weightData_WASTE);
-  json.set("PD",distanceData_PLASTIC);
-  json.set("PW", weightData_PLASTIC);
-  json.set("CD",distanceData_COMPOST);
-  json.set("CW", weightData_COMPOST);
-  json.set("RD",distanceData_RECYCLE);
-  json.set("RW", weightData_RECYCLE);
-  json.set("Time", t);
+  jsonAllData.set("WD",distanceData_WASTE);
+  jsonAllData.set("WW", weightData_WASTE);
+  jsonAllData.set("PD",distanceData_PLASTIC);
+  jsonAllData.set("PW", weightData_PLASTIC);
+  jsonAllData.set("CD",distanceData_COMPOST);
+  jsonAllData.set("CW", weightData_COMPOST);
+  jsonAllData.set("RD",distanceData_RECYCLE);
+  jsonAllData.set("RW", weightData_RECYCLE);
+  jsonAllData.set("Time", t);
 
-  if (Firebase.pushJSON(firebaseData, "Sensors/Sensor1/Data", json)) {
+  if (Firebase.pushJSON(firebaseData, SENSOR_NAME, jsonAllData)) {
     //SUCCESS
   } else {
     Serial.print("Error in sending JSON data to firebase, ");
@@ -347,72 +349,12 @@ void sendToFirebase(String t){
  
   //*********************
   //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestWD", distanceData_WASTE)) {
+  if (Firebase.setJSON(firebaseData, "SensorInfo/"+SENSOR_NAME+"/LatestData", jsonAllData)) {
     //SUCCESS
-   } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest distance data, ");
-    Serial.println(firebaseData.errorReason());
-  }
-  
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestWW", weightData_WASTE)) {
-    //Success
   } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest weight data, ");
-    Serial.println(firebaseData.errorReason());
-  } 
-
-  //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestPD", distanceData_PLASTIC)) {
-    //SUCCESS
-   } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest distance data, ");
+    Serial.print("Error in sending JSON data to firebase, ");
     Serial.println(firebaseData.errorReason());
   }
-  
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestPW", weightData_PLASTIC)) {
-    //Success
-  } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest weight data, ");
-    Serial.println(firebaseData.errorReason());
-  }
-
-  //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestCD", distanceData_COMPOST)) {
-    //SUCCESS
-   } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest distance data, ");
-    Serial.println(firebaseData.errorReason());
-  }
-  
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestCW", weightData_COMPOST)) {
-    //Success
-  } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest weight data, ");
-    Serial.println(firebaseData.errorReason());
-  } 
-
-  //Update Latest Data
-   if (Firebase.setInt(firebaseData, "Sensors/Sensor1/LatestRD", distanceData_RECYCLE)) {
-    //SUCCESS
-   } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest distance data, ");
-    Serial.println(firebaseData.errorReason());
-  }
-  
-  if (Firebase.setFloat(firebaseData, "Sensors/Sensor1/LatestRW", weightData_RECYCLE)) {
-    //Success
-  } else {
-    //Failed?, get the error reason from firebaseData
-    Serial.print("Error in sending latest weight data, ");
-    Serial.println(firebaseData.errorReason());
-  } 
 }
 
 void setup() {
