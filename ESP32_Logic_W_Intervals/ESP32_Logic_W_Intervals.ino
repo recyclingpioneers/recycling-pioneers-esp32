@@ -6,12 +6,11 @@
  * 
  * Ultrasonic sensor uses NewPing library
  * https://bitbucket.org/teckel12/arduino-new-ping/wiki/Home
- * 
  * HX711_ADC library to connect with load cell amplifier
- * 
  * Wifi Library for esp32
- * 
  * Time Library 
+ * 
+ * IMPORTANT: Please consult the README.md file to know which lines of code to change when setting up each sensor.
  */
 
 #include <WiFi.h>
@@ -73,7 +72,7 @@
 
 
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-#define UPDATE_INTERVAL 600000 //Time in milliseconds between updating firebase database (10 min)
+
 
 //Name of node in firebase data 
 const String SENSOR_NAME = "sensor1";
@@ -343,7 +342,7 @@ void sendToFirebase(String t){
   if (Firebase.pushJSON(firebaseData, SENSOR_NAME, jsonAllData)) {
     //SUCCESS
   } else {
-    Serial.print("Error in sending JSON data to firebase, ");
+    Serial.print("Error in sending a JSON data object to firebase, ");
     Serial.println(firebaseData.errorReason());
   }
  
@@ -352,7 +351,7 @@ void sendToFirebase(String t){
   if (Firebase.setJSON(firebaseData, "SensorInfo/"+SENSOR_NAME+"/LatestData", jsonAllData)) {
     //SUCCESS
   } else {
-    Serial.print("Error in sending JSON data to firebase, ");
+    Serial.print("Error in sending the latest JSON data to firebase, ");
     Serial.println(firebaseData.errorReason());
   }
 }
