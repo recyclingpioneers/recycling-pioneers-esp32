@@ -72,7 +72,7 @@
 
 
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-
+#define UPDATE_INTERVAL 600000 //Time in milliseconds between updating firebase database (10 min)
 
 //Name of node in firebase data 
 const String SENSOR_NAME = "sensor1";
