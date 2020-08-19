@@ -28,6 +28,7 @@
 #define SECRET_WIFI_PASSWORD "wifi password here"
 */
 
+
 //Pins required for Distance Sensors 
 #define TRIGGER_PIN_WASTE_1  16  // Arduino pin tied to trigger pin on the ultrasonic sensor
 #define ECHO_PIN_WASTE_1     17  // Arduino pin tied to echo pin on the ultrasonic sensor.
@@ -72,10 +73,24 @@
 
 
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-#define UPDATE_INTERVAL 600000 //Time in milliseconds between updating firebase database (10 min)
+#define UPDATE_INTERVAL 600000 //Time in milliseconds between updating firebase database (10 min = 600000)
 
-//Name of node in firebase data 
-const String SENSOR_NAME = "sensor1";
+//IMPORTANT- UPDATE THIS EVERYTIME: Name of node in firebase data ***********************************
+const String BIN_NAME = "";
+const String BUILDING_NAME = "";
+const String FACULTY_NAME = "";
+const int FLOOR_NUMBER = ;
+const String CLOSEST_ROOM = "";
+
+//THE FOLLOWING IS AN EXAMPLE: FOLLOW THIS TEMPLATE
+/*
+const String BIN_NAME = "trottier1050";
+const String BUILDING_NAME = "TROT";
+const String FACULTY_NAME = "ECSE";
+const int FLOOR_NUMBER = 1;
+const String CLOSEST_ROOM = "1050";
+*/
+//**************************************************************************************************
 
 const char *FIREBASE_HOST = SECRET_FIREBASE_HOST;
 const char *FIREBASE_AUTH = SECRET_FIREBASE_AUTH;
@@ -339,7 +354,7 @@ void sendToFirebase(String t){
   jsonAllData.set("RW", weightData_RECYCLE);
   jsonAllData.set("Time", t);
 
-  if (Firebase.pushJSON(firebaseData, SENSOR_NAME, jsonAllData)) {
+  if (Firebase.pushJSON(firebaseData, BIN_NAME, jsonAllData)) {
     //SUCCESS
   } else {
     Serial.print("Error in sending a JSON data object to firebase, ");
@@ -348,7 +363,7 @@ void sendToFirebase(String t){
  
   //*********************
   //Update Latest Data
-  if (Firebase.setJSON(firebaseData, "SensorInfo/"+SENSOR_NAME+"/LatestData", jsonAllData)) {
+  if (Firebase.setJSON(firebaseData, "SensorInfo/"+BIN_NAME+"/LatestData", jsonAllData)) {
     //SUCCESS
   } else {
     Serial.print("Error in sending the latest JSON data to firebase, ");
@@ -380,6 +395,40 @@ void setup() {
 
   //Configure the weight sensor
   initWeightSensors();
+
+  //Add bin data to firebase
+  //Update Latest Data
+    if (Firebase.setString(firebaseData, "SensorInfo/"+BIN_NAME+"/Building", BUILDING_NAME)) {
+     //SUCCESS
+    } else {
+     //Failed?, get the error reason from firebaseData
+     Serial.print("Error in sending Building Name, ");
+     Serial.println(firebaseData.errorReason());
+   }
+
+     if (Firebase.setString(firebaseData, "SensorInfo/"+BIN_NAME+"/Faculty", FACULTY_NAME)) {
+     //SUCCESS
+    } else {
+     //Failed?, get the error reason from firebaseData
+     Serial.print("Error in sending Faculty Name, ");
+     Serial.println(firebaseData.errorReason());
+   }
+
+     if (Firebase.setInt(firebaseData, "SensorInfo/"+BIN_NAME+"/Floor", FLOOR_NUMBER)) {
+     //SUCCESS
+    } else {
+     //Failed?, get the error reason from firebaseData
+     Serial.print("Error in sending Building Name, ");
+     Serial.println(firebaseData.errorReason());
+   }
+
+     if (Firebase.setString(firebaseData, "SensorInfo/"+BIN_NAME+"/ClosestRoom", CLOSEST_ROOM)) {
+     //SUCCESS
+    } else {
+     //Failed?, get the error reason from firebaseData
+     Serial.print("Error in sending Closest Room Number, ");
+     Serial.println(firebaseData.errorReason());
+   }
 }
 
 void loop() {
