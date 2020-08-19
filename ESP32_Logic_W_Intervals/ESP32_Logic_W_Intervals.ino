@@ -29,66 +29,55 @@
 */
 
 
-//Pins required for Distance Sensors 
-#define TRIGGER_PIN_WASTE_1  16  // Arduino pin tied to trigger pin on the ultrasonic sensor
-#define ECHO_PIN_WASTE_1     17  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define TRIGGER_PIN_WASTE_2  18  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_WASTE_2     19  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define TRIGGER_PIN_WASTE_3  22  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_WASTE_3     23  // Arduino pin tied to echo pin on the ultrasonic sensor. 
+//Pins required for Distance Sensors: MAKE SURE THEY ARE CONNECTED AT THE RIGHT GPIO PINS
 
-#define TRIGGER_PIN_PLASTIC_1 16  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_PLASTIC_1    17   // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define TRIGGER_PIN_PLASTIC_2 18 // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_PLASTIC_2    19   // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define TRIGGER_PIN_PLASTIC_3 22  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_PLASTIC_3     23 // Arduino pin tied to echo pin on the ultrasonic sensor. 
+#define TRIGGER_PIN_WASTE_1  23  // Arduino pin tied to trigger pin on the ultrasonic sensor
+#define ECHO_PIN_WASTE_1     23  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define TRIGGER_PIN_WASTE_2  22  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_WASTE_2     22  // Arduino pin tied to echo pin on the ultrasonic sensor.
 
-#define TRIGGER_PIN_COMPOST_1 16  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_COMPOST_1    17   // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define TRIGGER_PIN_COMPOST_1 19 // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_COMPOST_1    19   // Arduino pin tied to echo pin on the ultrasonic sensor.
 #define TRIGGER_PIN_COMPOST_2  18  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_COMPOST_2     19  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define TRIGGER_PIN_COMPOST_3 22   // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_COMPOST_3   23   // Arduino pin tied to echo pin on the ultrasonic sensor. 
+#define ECHO_PIN_COMPOST_2     18  // Arduino pin tied to echo pin on the ultrasonic sensor.
 
-#define TRIGGER_PIN_RECYCLE_1 16   // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_RECYCLE_1    17  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define TRIGGER_PIN_RECYCLE_2  18 // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_RECYCLE_2    19   // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define TRIGGER_PIN_RECYCLE_3  22  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define ECHO_PIN_RECYCLE_3  23   // Arduino pin tied to echo pin on the ultrasonic sensor. 
+#define TRIGGER_PIN_PLASTIC_1  32 // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_PLASTIC_1     32  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define TRIGGER_PIN_PLASTIC_2  33// Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_PLASTIC_2     33  // Arduino pin tied to echo pin on the ultrasonic sensor.
+
+#define TRIGGER_PIN_RECYCLE_1  25  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_RECYCLE_1     25  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define TRIGGER_PIN_RECYCLE_2  26 // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN_RECYCLE_2     26  // Arduino pin tied to echo pin on the ultrasonic sensor.
+
 
 //Pins for Load Sensors
 #define DOUT_WASTE 5
 #define CLK_WASTE 4
 
-#define DOUT_PLASTIC 5
-#define CLK_PLASTIC 4
+#define DOUT_COMPOST 15
+#define CLK_COMPOST 17
 
-#define DOUT_COMPOST 5
-#define CLK_COMPOST 4
+#define DOUT_PLASTIC 27
+#define CLK_PLASTIC  14
 
-#define DOUT_RECYCLE 5 
-#define CLK_RECYCLE 4
-
+#define DOUT_RECYCLE 34
+#define CLK_RECYCLE 35
 
 #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-#define UPDATE_INTERVAL 600000 //Time in milliseconds between updating firebase database (10 min = 600000)
+#define UPDATE_INTERVAL 5000 //Time in milliseconds between updating firebase database (10 min = 600000)
 
 //IMPORTANT- UPDATE THIS EVERYTIME: Name of node in firebase data ***********************************
-const String BIN_NAME = "";
-const String BUILDING_NAME = "";
-const String FACULTY_NAME = "";
-const int FLOOR_NUMBER = ;
-const String CLOSEST_ROOM = "";
-
-//THE FOLLOWING IS AN EXAMPLE: FOLLOW THIS TEMPLATE
-/*
 const String BIN_NAME = "trottier1050";
 const String BUILDING_NAME = "TROT";
 const String FACULTY_NAME = "ECSE";
 const int FLOOR_NUMBER = 1;
 const String CLOSEST_ROOM = "1050";
+
+//THE FOLLOWING IS AN EXAMPLE: FOLLOW THIS TEMPLATE
+/*
+
 */
 //**************************************************************************************************
 
@@ -139,19 +128,16 @@ unsigned long previousMillis = 0; //Last time updated
 
 NewPing sonar_waste_1(TRIGGER_PIN_WASTE_1, ECHO_PIN_WASTE_1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 NewPing sonar_waste_2(TRIGGER_PIN_WASTE_2, ECHO_PIN_WASTE_2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-NewPing sonar_waste_3(TRIGGER_PIN_WASTE_3, ECHO_PIN_WASTE_3, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 NewPing sonar_plastic_1(TRIGGER_PIN_WASTE_1, ECHO_PIN_WASTE_1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 NewPing sonar_plastic_2(TRIGGER_PIN_WASTE_2, ECHO_PIN_WASTE_2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-NewPing sonar_plastic_3(TRIGGER_PIN_WASTE_3, ECHO_PIN_WASTE_3, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 NewPing sonar_compost_1(TRIGGER_PIN_WASTE_1, ECHO_PIN_WASTE_1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 NewPing sonar_compost_2(TRIGGER_PIN_WASTE_2, ECHO_PIN_WASTE_2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-NewPing sonar_compost_3(TRIGGER_PIN_WASTE_3, ECHO_PIN_WASTE_3, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 NewPing sonar_recycle_1(TRIGGER_PIN_WASTE_1, ECHO_PIN_WASTE_1, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 NewPing sonar_recycle_2(TRIGGER_PIN_WASTE_2, ECHO_PIN_WASTE_2, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-NewPing sonar_recycle_3(TRIGGER_PIN_WASTE_3, ECHO_PIN_WASTE_3, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+
 
 HX711_ADC LoadCell_WASTE(DOUT_WASTE,CLK_WASTE);   //HX711 constructor (dout pin, sck pin)
 HX711_ADC LoadCell_PLASTIC(DOUT_PLASTIC,CLK_PLASTIC);   //HX711 constructor (dout pin, sck pin)
@@ -220,32 +206,28 @@ void initWeightSensors(){
 int getDistanceDataWaste(){
   int distance1 = sonar_waste_1.convert_cm(sonar_waste_1.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
   int distance2 = sonar_waste_2.convert_cm(sonar_waste_2.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int distance3 = sonar_waste_3.convert_cm(sonar_waste_3.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int finalDistance = (distance1 + distance2 + distance3)/3;
+  int finalDistance = (distance1+distance2)/2;
   return finalDistance; 
 }
 
 int getDistanceDataPlastic(){
   int distance1 = sonar_plastic_1.convert_cm(sonar_plastic_1.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
   int distance2 = sonar_plastic_2.convert_cm(sonar_plastic_2.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int distance3 = sonar_plastic_3.convert_cm(sonar_plastic_3.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int finalDistance = (distance1 + distance2 + distance3)/3;
+  int finalDistance = (distance1+distance2)/2;
   return finalDistance; 
 }
 
 int getDistanceDataCompost(){
   int distance1 = sonar_compost_1.convert_cm(sonar_compost_1.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
   int distance2 = sonar_compost_2.convert_cm(sonar_compost_2.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int distance3 = sonar_compost_3.convert_cm(sonar_compost_3.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int finalDistance = (distance1 + distance2 + distance3)/3;
+  int finalDistance = (distance1+distance2)/2;
   return finalDistance; 
 }
 
 int getDistanceDataRecycle(){
   int distance1 = sonar_recycle_1.convert_cm(sonar_recycle_1.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
   int distance2 = sonar_recycle_2.convert_cm(sonar_recycle_2.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int distance3 = sonar_recycle_3.convert_cm(sonar_recycle_3.ping_median(10)); // read distance from ultrasonic sensor (using median of 10 iterations)
-  int finalDistance = (distance1 + distance2 + distance3)/3;
+  int finalDistance = (distance1+distance2)/2; 
   return finalDistance; 
 }
 
