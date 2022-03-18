@@ -52,6 +52,8 @@ void loop() {
     else if (inByte == 'L') i = -10.0;
     else if (inByte == 'h') i = 1.0;
     else if (inByte == 'H') i = 10.0;
+    else if (inByte == 'M') i = 1000.0;
+    else if (inByte == 'N') i = -1000.0;
     else if (inByte == 't') LoadCell.tareNoDelay();
     if (i != 't') {
       float v = LoadCell.getCalFactor() + i;
